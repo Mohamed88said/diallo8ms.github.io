@@ -4,119 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmation - Mohamed Saïd Diallo</title>
-    <!-- Chargement optimisé des polices et icônes -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --success-color: #28a745;
-            --success-bg: #d4edda;
-            --success-text: #155724;
-            --link-color: #007bff;
+            --success: #28a745;
+            --light: #ecf0f1;
+            --text-dark: #333333;
         }
-
+        
         body {
             font-family: 'Open Sans', sans-serif;
             text-align: center;
             padding: 20px;
-            line-height: 1.6;
-            margin: 0;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #f8f9fa;
+            background-color: var(--light);
+            color: var(--text-dark);
         }
-
-        .success-container {
-            max-width: 100%;
-            width: 600px;
+        
+        .confirmation-container {
+            max-width: 600px;
             padding: 2rem;
         }
-
-        .success-message {
-            background: var(--success-bg);
-            color: var(--success-text);
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            padding: 2.5rem;
-            margin-bottom: 2rem;
-        }
-
-        h1 {
-            color: var(--success-color);
-            margin: 1rem 0;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-        }
-
-        .success-icon {
+        
+        .fa-check-circle {
             font-size: 5rem;
-            color: var(--success-color);
+            color: var(--success);
             margin-bottom: 1rem;
         }
-
-        .btn-return {
+        
+        .btn {
             display: inline-block;
             padding: 0.75rem 1.5rem;
             background: white;
-            color: var(--link-color);
+            color: #007bff;
             border-radius: 30px;
             text-decoration: none;
             font-weight: 600;
-            border: 2px solid var(--link-color);
-            transition: all 0.3s ease;
+            border: 2px solid #007bff;
             margin-top: 1rem;
+            transition: all 0.3s;
         }
-
-        .btn-return:hover {
-            background: var(--link-color);
+        
+        .btn:hover {
+            background: #007bff;
             color: white;
-            text-decoration: none;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        /* Mode sombre */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #121212;
-            }
-            .success-message {
-                background: #1e3a1e;
-                color: #d4edda;
-            }
-            .btn-return {
-                background: #222;
-                border-color: #007bff;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="success-container">
-        <div class="success-message">
-            <i class="fas fa-check-circle success-icon"></i>
-            <h1>Message envoyé avec succès !</h1>
-            <p>Je vous répondrai dans les plus brefs délais.</p>
-        </div>
-        <a href="index.html" class="btn-return">
-            <i class="fas fa-arrow-left"></i> Retour à l'accueil
-        </a>
+    <div class="confirmation-container">
+        <i class="fas fa-check-circle"></i>
+        <h1>Message envoyé avec succès !</h1>
+        <p>Je vous répondrai dans les plus brefs délais.</p>
+        <a href="index.html" class="btn">Retour à l'accueil</a>
     </div>
 
-    <!-- Script de vérification de redirection -->
     <script>
-        // Vérifie si la page a été chargée via une redirection
-        if (document.referrer.indexOf("formsubmit.co") === -1 && 
-            document.referrer.indexOf(window.location.hostname) === -1) {
-            // Si accès direct, redirige après 5s
-            setTimeout(() => {
-                window.location.href = "index.html";
-            }, 5000);
+        // Vérification de la provenance légitime
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has('success') || document.referrer.indexOf("formsubmit.co") === -1) {
+            window.location.href = "index.html";
         }
     </script>
 </body>
