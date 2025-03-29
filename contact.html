@@ -255,6 +255,26 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
+        /* Messages de confirmation/erreur */
+        .form-message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -325,11 +345,20 @@
                 </div>
             </div>
 
-            <form action="#" method="post">
+            <form id="contactForm" action="https://formsubmit.co/mohamedsaiddiallo88@gmail.com" method="POST">
+                <!-- Protection anti-spam -->
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="https://diallo8ms.github.io/merci.html">
+                <input type="hidden" name="_template" value="table">
+                
                 <h2>Formulaire de Contact</h2>
+                
+                <!-- Messages de confirmation/erreur -->
+                <div id="formMessage" class="form-message"></div>
+                
                 <div class="form-group">
                     <label for="nom">Nom complet</label>
-                    <input type="text" id="nom" name="nom" required>
+                    <input type="text" id="nom" name="nom" required minlength="2">
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -337,11 +366,11 @@
                 </div>
                 <div class="form-group">
                     <label for="sujet">Sujet</label>
-                    <input type="text" id="sujet" name="sujet" required>
+                    <input type="text" id="sujet" name="sujet" required minlength="5">
                 </div>
                 <div class="form-group">
                     <label for="message">Message</label>
-                    <textarea id="message" name="message" required></textarea>
+                    <textarea id="message" name="message" required minlength="10"></textarea>
                 </div>
                 <button type="submit">Envoyer le message</button>
             </form>
@@ -376,16 +405,52 @@
             }
         }
 
+        // Gestion du formulaire
         document.addEventListener("DOMContentLoaded", function() {
             checkDarkMode();
             
-            // Animation légère pour le formulaire
-            const form = document.querySelector('form');
-            if (form) {
-                setTimeout(() => {
-                    form.style.opacity = '1';
-                    form.style.transform = 'translateY(0)';
-                }, 300);
+            const contactForm = document.getElementById('contactForm');
+            const formMessage = document.getElementById('formMessage');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Afficher "Envoi en cours..."
+                    formMessage.textContent = "Envoi du message en cours...";
+                    formMessage.className = "form-message";
+                    formMessage.style.display = "block";
+                    
+                    // Envoi via FormSubmit
+                    fetch(contactForm.action, {
+                        method: 'POST',
+                        body: new FormData(contactForm),
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Erreur réseau');
+                        }
+                    })
+                    .then(data => {
+                        // Succès
+                        formMessage.textContent = "Message envoyé avec succès !";
+                        formMessage.className = "form-message success";
+                        contactForm.reset();
+                        
+                        // Redirection après 3 secondes
+                        setTimeout(() => {
+                            window.location.href = contactForm.querySelector('[name="_next"]').value;
+                        }, 3000);
+                    })
+                    .catch(error => {
+                        // Erreur
+                        formMessage.textContent = "Une erreur est survenue. Veuillez réessayer ou me contacter directement par email.";
+                        formMessage.className = "form-message error";
+                        console.error('Error:', error);
+                    });
+                });
             }
         });
     </script>
