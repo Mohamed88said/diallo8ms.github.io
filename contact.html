@@ -247,12 +247,34 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
         }
 
         button[type="submit"]:hover {
             background: #2980b9;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        button[type="submit"]:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            position: absolute;
+            right: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Messages de confirmation/erreur */
@@ -273,6 +295,18 @@
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
+        }
+
+        body.dark-mode .success {
+            background: #155724;
+            color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        body.dark-mode .error {
+            background: #721c24;
+            color: #f8d7da;
+            border-color: #f5c6cb;
         }
 
         /* Footer */
@@ -346,14 +380,15 @@
             </div>
 
             <form id="contactForm" action="https://formsubmit.co/mohamedsaiddiallo88@gmail.com" method="POST">
-                <!-- Protection anti-spam -->
+                <!-- Protection et configuration FormSubmit -->
                 <input type="hidden" name="_captcha" value="false">
                 <input type="hidden" name="_next" value="https://diallo8ms.github.io/merci.html">
                 <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_subject" value="Nouveau message depuis votre portfolio">
                 
                 <h2>Formulaire de Contact</h2>
                 
-                <!-- Messages de confirmation/erreur -->
+                <!-- Message de statut -->
                 <div id="formMessage" class="form-message"></div>
                 
                 <div class="form-group">
@@ -372,7 +407,10 @@
                     <label for="message">Message</label>
                     <textarea id="message" name="message" required minlength="10"></textarea>
                 </div>
-                <button type="submit">Envoyer le message</button>
+                <button type="submit" id="submitBtn">
+                    Envoyer le message
+                    <span class="loader" id="formLoader"></span>
+                </button>
             </form>
         </div>
     </section>
@@ -411,46 +449,50 @@
             
             const contactForm = document.getElementById('contactForm');
             const formMessage = document.getElementById('formMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            const formLoader = document.getElementById('formLoader');
             
             if (contactForm) {
-                contactForm.addEventListener('submit', function(e) {
+                contactForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
-                    // Afficher "Envoi en cours..."
-                    formMessage.textContent = "Envoi du message en cours...";
-                    formMessage.className = "form-message";
-                    formMessage.style.display = "block";
+                    // Désactiver le bouton pendant l'envoi
+                    submitBtn.disabled = true;
+                    formLoader.style.display = 'block';
+                    formMessage.style.display = 'none';
                     
-                    // Envoi via FormSubmit
-                    fetch(contactForm.action, {
-                        method: 'POST',
-                        body: new FormData(contactForm),
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            return response.json();
-                        } else {
-                            throw new Error('Erreur réseau');
-                        }
-                    })
-                    .then(data => {
-                        // Succès
-                        formMessage.textContent = "Message envoyé avec succès !";
-                        formMessage.className = "form-message success";
-                        contactForm.reset();
+                    try {
+                        const response = await fetch(contactForm.action, {
+                            method: 'POST',
+                            body: new FormData(contactForm),
+                        });
                         
-                        // Redirection après 3 secondes
-                        setTimeout(() => {
-                            window.location.href = contactForm.querySelector('[name="_next"]').value;
-                        }, 3000);
-                    })
-                    .catch(error => {
+                        if (response.ok) {
+                            // Succès
+                            showMessage("Message envoyé avec succès ! Redirection...", 'success');
+                            
+                            // Redirection après 2 secondes
+                            setTimeout(() => {
+                                window.location.href = contactForm.querySelector('[name="_next"]').value;
+                            }, 2000);
+                        } else {
+                            throw new Error('Erreur lors de l\'envoi');
+                        }
+                    } catch (error) {
                         // Erreur
-                        formMessage.textContent = "Une erreur est survenue. Veuillez réessayer ou me contacter directement par email.";
-                        formMessage.className = "form-message error";
-                        console.error('Error:', error);
-                    });
+                        showMessage("Une erreur est survenue. Veuillez réessayer ou me contacter directement par email.", 'error');
+                        console.error('Erreur:', error);
+                    } finally {
+                        submitBtn.disabled = false;
+                        formLoader.style.display = 'none';
+                    }
                 });
+            }
+            
+            function showMessage(text, type) {
+                formMessage.textContent = text;
+                formMessage.className = `form-message ${type}`;
+                formMessage.style.display = 'block';
             }
         });
     </script>
